@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rutinitas Harian — 1% Better Every Day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0d1826;
+    --bg-elev: #12213480;
+    --bg-elev-2: #17293f;
+    --line: rgba(241,236,224,0.09);
+    --gold: #d9a94f;
+    --teal: #52ad91;
+    --warm: #e2895a;
+    --ink: #f1ece2;
+    --ink-mute: #8fa0b8;
+    --ink-faint: #4f5f77;
+    --ring-track: rgba(241,236,224,0.10);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(217,169,79,0.10), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(82,173,145,0.08), transparent 55%),
+      var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 28px 16px 80px;
+  }
+  .wrap{max-width: 760px; margin: 0 auto;}
+
+  /* ---- header ---- */
+  header{margin-bottom: 22px;}
+  .clock-row{
+    display:flex; align-items:baseline; justify-content:space-between;
+    font-family:'JetBrains Mono', monospace; color: var(--ink-mute);
+    font-size: 13px; letter-spacing: .04em; margin-bottom: 10px;
+  }
+  .clock-row .time{color:var(--ink); font-size:15px; font-weight:600;}
+  h1{
+    font-family:'Fraunces', serif; font-weight:600; font-size: clamp(26px,5vw,34px);
+    margin: 0 0 4px; letter-spacing: -0.01em;
+  }
+  .tagline{color: var(--ink-mute); font-size: 14px; max-width: 56ch; line-height:1.5;}
+
+  /* ---- hero: current activity ---- */
+  .hero{
+    position: relative;
+    background: linear-gradient(160deg, var(--bg-elev-2), var(--bg-elev));
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 22px;
+    margin: 22px 0 20px;
+    display:flex; gap:22px; align-items:center;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image: radial-gradient(circle, rgba(241,236,224,0.045) 1px, transparent 1px);
+    background-size: 16px 16px;
+    -webkit-mask-image: radial-gradient(ellipse 340px 180px at 100% 0%, black, transparent 70%);
+            mask-image: radial-gradient(ellipse 340px 180px at 100% 0%, black, transparent 70%);
+    pointer-events:none;
+  }
+  .hero-text{flex:1; min-width:0; position:relative;}
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--warm); font-weight:600; margin-bottom:8px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--warm); box-shadow:0 0 0 4px rgba(226,137,90,0.18); animation: pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.4;}}
+  .hero h2{font-family:'Fraunces', serif; font-size: clamp(21px,4.4vw,27px); font-weight:600; margin: 0 0 6px; line-height:1.15;}
+  .hero p{color: var(--ink-mute); font-size:13.5px; line-height:1.5; margin:0 0 10px;}
+  .hero .next-up{
+    font-size:12.5px; color: var(--ink-faint); font-family:'JetBrains Mono', monospace;
+    border-top:1px solid var(--line); padding-top:9px; margin-top:2px;
+  }
+  .hero .next-up b{color:var(--ink-mute); font-weight:600;}
+
+  .ring-wrap{position:relative; width:96px; height:96px; flex-shrink:0;}
+  .ring-wrap svg{transform: rotate(-90deg);}
+  .ring-pct{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace; font-weight:600; font-size:15px; color: var(--ink);
+  }
+
+  .hero.off-day{opacity:.75;}
+  .hero.off-day .eyebrow{color: var(--ink-mute);}
+  .hero.off-day .eyebrow .dot{background: var(--ink-mute); box-shadow:none; animation:none;}
+
+  /* ---- day tabs ---- */
+  .tabs{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
+  .tab{
+    font-family:'Inter'; font-size:13px; font-weight:600; color: var(--ink-mute);
+    background: var(--bg-elev); border:1px solid var(--line); padding:8px 14px;
+    border-radius: 999px; cursor:pointer; transition: all .15s ease;
+  }
+  .tab:hover{color:var(--ink); border-color: rgba(241,236,224,0.2);}
+  .tab.active{background: var(--gold); color:#1a1206; border-color: var(--gold);}
+  .tab .today-mark{margin-left:5px; opacity:.7;}
+
+  /* ---- timeline ---- */
+  .timeline{position:relative; margin-bottom:26px;}
+  .block{
+    display:flex; gap:14px; padding: 13px 14px 13px 16px;
+    border-left: 3px solid var(--line);
+    border-radius: 10px;
+    margin-bottom: 4px;
+    transition: background .15s ease;
+    position:relative;
+  }
+  .block .b-time{
+    font-family:'JetBrains Mono', monospace; font-size:12px; color: var(--ink-faint);
+    width: 84px; flex-shrink:0; padding-top:2px; line-height:1.4;
+  }
+  .block .b-icon{font-size:17px; flex-shrink:0; padding-top:1px;}
+  .block .b-body{flex:1; min-width:0;}
+  .block .b-title{font-size:14px; font-weight:600; color: var(--ink-mute); line-height:1.35;}
+  .block .b-desc{font-size:12.5px; color: var(--ink-faint); margin-top:2px; line-height:1.4;}
+  .block .b-approx{font-size:10.5px; color: var(--ink-faint); font-style:italic;}
+
+  .block.past{opacity:.42;}
+  .block.now{
+    border-left-color: var(--warm);
+    background: rgba(226,137,90,0.08);
+  }
+  .block.now .b-time, .block.now .b-title{color: var(--ink);}
+  .block.now .b-badge{
+    display:inline-block; font-family:'JetBrains Mono', monospace; font-size:10px;
+    letter-spacing:.08em; color:var(--warm); background: rgba(226,137,90,0.15);
+    border-radius:5px; padding:1px 6px; margin-left:8px; vertical-align:middle;
+  }
+  .block.future .b-title{color: var(--ink);}
+
+  /* ---- footer cards ---- */
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px;}
+  @media (max-width:600px){.grid2{grid-template-columns:1fr;} .hero{flex-direction:column; align-items:flex-start;} .ring-wrap{align-self:flex-end;}}
+  .card{
+    background: var(--bg-elev); border:1px solid var(--line); border-radius:16px; padding:18px 18px 16px;
+  }
+  .card h3{
+    font-family:'Fraunces', serif; font-size:15px; font-weight:600; margin:0 0 12px;
+    display:flex; align-items:center; gap:7px;
+  }
+  .card ul{list-style:none; margin:0; padding:0;}
+  .card li{
+    font-size:13px; color: var(--ink-mute); padding:6px 0; border-top:1px solid var(--line);
+    display:flex; gap:8px; align-items:flex-start; line-height:1.4;
+  }
+  .card li:first-child{border-top:none;}
+  .card li::before{content:"✓"; color: var(--teal); font-weight:700; flex-shrink:0;}
+
+  .note{
+    font-size:11.5px; color: var(--ink-faint); line-height:1.6; margin-top:8px;
+    border-top:1px dashed var(--line); padding-top:14px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="clock-row">
+      <span id="dateLabel">—</span>
+      <span class="time" id="timeLabel">--:--:--</span>
+    </div>
+    <h1>Rutinitas Harian</h1>
+    <div class="tagline">Ibadah, karier, dan aset — 1% lebih baik setiap hari. Kegiatan yang sedang berlangsung otomatis ditandai sesuai jam sekarang.</div>
+  </header>
+
+  <div class="hero" id="hero">
+    <div class="hero-text">
+      <div class="eyebrow"><span class="dot"></span><span id="heroEyebrow">SEDANG BERLANGSUNG</span></div>
+      <h2 id="heroTitle">Memuat…</h2>
+      <p id="heroDesc"></p>
+      <div class="next-up" id="heroNext"></div>
+    </div>
+    <div class="ring-wrap" id="ringWrap">
+      <svg width="96" height="96" viewBox="0 0 96 96">
+        <circle cx="48" cy="48" r="42" fill="none" stroke="var(--ring-track)" stroke-width="7"/>
+        <circle id="ringProgress" cx="48" cy="48" r="42" fill="none" stroke="var(--warm)" stroke-width="7"
+          stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264"/>
+      </svg>
+      <div class="ring-pct" id="ringPct">–</div>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div class="timeline" id="timeline"></div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>🎯 Target Harian</h3>
+      <ul>
+        <li>Shalat 5 waktu</li>
+        <li>Subuh &amp; Isya berjamaah</li>
+        <li>Olahraga</li>
+        <li>Bekerja maksimal</li>
+        <li>1 sesi Deep Work (±1,5 jam)</li>
+        <li>Membaca buku 20–30 menit</li>
+        <li>Surah Al-Mulk</li>
+        <li>Tidur sebelum 22.00</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>📋 Review Mingguan</h3>
+      <ul>
+        <li>Shalat berjamaah berapa kali minggu ini?</li>
+        <li>Berapa konten yang selesai?</li>
+        <li>Ada progress portfolio?</li>
+        <li>Ada project baru?</li>
+        <li>Berapa halaman buku yang selesai?</li>
+        <li>Berapa pemasukan minggu ini?</li>
+        <li>Apa yang harus diperbaiki minggu depan?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note">
+    Beberapa slot waktu di Sabtu &amp; Minggu (mis. istirahat siang, waktu bebas) tidak disebutkan secara eksplisit di rutinitas asli dan diperkirakan agar linimasa tetap utuh — ditandai <em>*perkiraan</em>. Jam mengikuti waktu lokal perangkat kamu.
+  </div>
+
+</div>
+
+<script>
+const ROTATION = {1:'Content Creator (@albust.id)', 2:'Portfolio', 3:'Google Apps Script', 4:'Google Sheets'};
+
+function weekdaySchedule(jsDay){
+  const deepWork = ROTATION[jsDay] || 'Content Creator (@albust.id)';
+  return [
+    {s:"04:00", e:"04:05", icon:"🌙", t:"Bangun & rapikan tempat tidur", d:"Minum air putih.", cat:"personal"},
+    {s:"04:05", e:"04:25", icon:"🕌", t:"Tahajud", d:"", cat:"ibadah"},
+    {s:"04:25", e:"04:30", icon:"🕌", t:"Persiapan ke masjid", d:"", cat:"persiapan"},
+    {s:"04:30", e:"05:00", icon:"🕌", t:"Shalat Subuh berjamaah", d:"Dzikir pagi.", cat:"ibadah"},
+    {s:"05:00", e:"05:30", icon:"💪", t:"Olahraga ringan", d:"Push up, squat, wall sit, stretching.", cat:"olahraga"},
+    {s:"05:30", e:"05:50", icon:"🚿", t:"Mandi", d:"", cat:"personal"},
+    {s:"05:50", e:"06:10", icon:"📖", t:"Tilawah / Murajaah", d:"10–15 menit.", cat:"ibadah"},
+    {s:"06:10", e:"06:30", icon:"🥣", t:"Sarapan", d:"", cat:"personal"},
+    {s:"06:30", e:"06:45", icon:"🕌", t:"Shalat Dhuha", d:"", cat:"ibadah"},
+    {s:"06:45", e:"07:20", icon:"🎒", t:"Persiapan kerja", d:"", cat:"persiapan"},
+    {s:"07:20", e:"07:30", icon:"🛵", t:"Berangkat kerja", d:"", cat:"perjalanan"},
+    {s:"07:30", e:"11:00", icon:"💼", t:"Fokus bekerja", d:"Input data rapi, SAP, stock, reporting.", cat:"kerja"},
+    {s:"11:00", e:"11:30", icon:"🍽️", t:"Makan siang", d:"", cat:"personal"},
+    {s:"11:30", e:"12:00", icon:"🕌", t:"Shalat Zuhur", d:"", cat:"ibadah"},
+    {s:"12:00", e:"13:50", icon:"☕", t:"Istirahat siang", d:"", approx:true, cat:"personal"},
+    {s:"13:50", e:"15:30", icon:"💼", t:"Fokus bekerja", d:"", cat:"kerja"},
+    {s:"15:30", e:"15:45", icon:"🕌", t:"Shalat Ashar", d:"", cat:"ibadah"},
+    {s:"15:45", e:"16:30", icon:"💼", t:"Fokus bekerja", d:"", cat:"kerja"},
+    {s:"16:30", e:"16:40", icon:"🏠", t:"Perjalanan pulang", d:"", cat:"perjalanan"},
+    {s:"16:40", e:"18:00", icon:"🛋️", t:"Recharge", d:"Rebahan, ngobrol keluarga, teh/kopi, scrolling maks 20–30 menit. Tidak merasa bersalah — jangan langsung buka laptop.", cat:"personal"},
+    {s:"18:00", e:"18:30", icon:"🕌", t:"Maghrib berjamaah", d:"Dzikir petang.", cat:"ibadah"},
+    {s:"18:30", e:"19:00", icon:"🍽️", t:"Makan malam", d:"", cat:"personal"},
+    {s:"19:00", e:"19:30", icon:"🕌", t:"Isya berjamaah", d:"Membaca Surah Al-Mulk.", cat:"ibadah"},
+    {s:"19:30", e:"21:15", icon:"💻", t:"Deep Work: " + deepWork, d:"Fokus hanya satu prioritas. Jika proyek sedang dikejar, boleh dipakai penuh untuk proyek itu.", cat:"deepwork"},
+    {s:"21:15", e:"21:45", icon:"📚", t:"Membaca buku", d:"Bisnis, investasi, komunikasi, teknologi, atau produktivitas.", cat:"personal"},
+    {s:"21:45", e:"22:00", icon:"📝", t:"Planning besok", d:"3 prioritas besok, catatan singkat, bersyukur.", cat:"personal"},
+    {s:"22:00", e:"04:00", icon:"😴", t:"Tidur", d:"", cat:"tidur"},
+  ];
+}
+
+const JUMAT = [
+  {s:"04:00", e:"04:05", icon:"🌙", t:"Bangun & rapikan tempat tidur", d:"", cat:"personal"},
+  {s:"04:05", e:"04:25", icon:"🕌", t:"Tahajud", d:"", cat:"ibadah"},
+  {s:"04:25", e:"04:30", icon:"🕌", t:"Persiapan ke masjid", d:"", cat:"persiapan"},
+  {s:"04:30", e:"05:00", icon:"🕌", t:"Shalat Subuh berjamaah", d:"Dzikir pagi.", cat:"ibadah"},
+  {s:"05:00", e:"05:30", icon:"💪", t:"Olahraga ringan", d:"", cat:"olahraga"},
+  {s:"05:30", e:"05:50", icon:"🚿", t:"Mandi", d:"", cat:"personal"},
+  {s:"05:50", e:"06:10", icon:"📖", t:"Tilawah / Murajaah", d:"", cat:"ibadah"},
+  {s:"06:10", e:"06:30", icon:"🥣", t:"Sarapan", d:"", cat:"personal"},
+  {s:"06:30", e:"06:45", icon:"🕌", t:"Shalat Dhuha", d:"", cat:"ibadah"},
+  {s:"06:45", e:"07:20", icon:"🎒", t:"Persiapan kerja", d:"", cat:"persiapan"},
+  {s:"07:20", e:"07:30", icon:"🛵", t:"Berangkat kerja", d:"", cat:"perjalanan"},
+  {s:"07:30", e:"11:00", icon:"💼", t:"Fokus bekerja", d:"", cat:"kerja"},
+  {s:"11:00", e:"11:30", icon:"🍽️", t:"Makan siang", d:"", cat:"personal"},
+  {s:"11:30", e:"12:00", icon:"🕌", t:"Shalat Jumat", d:"", cat:"ibadah"},
+  {s:"12:00", e:"13:50", icon:"☕", t:"Istirahat siang", d:"", approx:true, cat:"personal"},
+  {s:"13:50", e:"15:30", icon:"💼", t:"Fokus bekerja", d:"", cat:"kerja"},
+  {s:"15:30", e:"15:45", icon:"🕌", t:"Shalat Ashar", d:"", cat:"ibadah"},
+  {s:"15:45", e:"17:10", icon:"💼", t:"Fokus bekerja", d:"", cat:"kerja"},
+  {s:"17:10", e:"17:20", icon:"🏠", t:"Perjalanan pulang", d:"", cat:"perjalanan"},
+  {s:"17:20", e:"18:00", icon:"🛋️", t:"Recharge", d:"", cat:"personal"},
+  {s:"18:00", e:"18:30", icon:"🕌", t:"Maghrib berjamaah", d:"Dzikir petang.", cat:"ibadah"},
+  {s:"18:30", e:"19:00", icon:"🍽️", t:"Makan malam", d:"", cat:"personal"},
+  {s:"19:00", e:"19:30", icon:"🕌", t:"Isya berjamaah", d:"Membaca Surah Al-Mulk.", cat:"ibadah"},
+  {s:"19:30", e:"22:00", icon:"🌆", t:"Malam santai", d:"Review keuangan, review investasi, membalas pesan, quality time keluarga.", cat:"personal"},
+  {s:"22:00", e:"04:00", icon:"😴", t:"Tidur", d:"", cat:"tidur"},
+];
+
+const SABTU = [
+  {s:"04:00", e:"06:00", icon:"🕌", t:"Rutinitas ibadah pagi", d:"Sama seperti Senin–Kamis: tahajud, subuh berjamaah, dzikir, tilawah, sarapan, dhuha.", cat:"ibadah"},
+  {s:"06:00", e:"07:00", icon:"🚶", t:"Jalan kaki", d:"Sampai berkeringat.", cat:"olahraga"},
+  {s:"07:00", e:"08:00", icon:"🚿", t:"Bersiap", d:"Mandi & persiapan.", approx:true, cat:"personal"},
+  {s:"08:00", e:"12:00", icon:"💻", t:"Deep Work", d:"Apps Script, portfolio, dashboard, project pribadi.", cat:"deepwork"},
+  {s:"12:00", e:"13:00", icon:"🍽️", t:"Istirahat & makan siang", d:"", approx:true, cat:"personal"},
+  {s:"13:00", e:"16:00", icon:"🎬", t:"Produksi konten", d:"Rekam beberapa video sekaligus, edit, jadwalkan upload.", cat:"konten"},
+  {s:"16:00", e:"17:30", icon:"🧺", t:"Bersih-bersih & laundry", d:"Bersih-bersih kamar, laundry, minimalisme.", cat:"personal"},
+  {s:"17:30", e:"22:00", icon:"📚", t:"Malam santai", d:"Membaca, menonton video edukasi, santai.", cat:"personal"},
+  {s:"22:00", e:"04:00", icon:"😴", t:"Tidur", d:"", cat:"tidur"},
+];
+
+const MINGGU = [
+  {s:"04:00", e:"06:00", icon:"🕌", t:"Rutinitas ibadah pagi", d:"", approx:true, cat:"ibadah"},
+  {s:"06:00", e:"08:00", icon:"💪", t:"Olahraga ringan", d:"", cat:"olahraga"},
+  {s:"08:00", e:"12:00", icon:"⏳", t:"Waktu bebas", d:"", approx:true, cat:"personal"},
+  {s:"12:00", e:"15:00", icon:"🏡", t:"Membantu orang tua", d:"Jika diperlukan.", approx:true, cat:"personal"},
+  {s:"15:00", e:"18:00", icon:"🎒", t:"Persiapan kerja minggu depan", d:"", approx:true, cat:"persiapan"},
+  {s:"18:00", e:"22:00", icon:"📋", t:"Review mingguan", d:"Evaluasi shalat, konten, portfolio, project, bacaan, pemasukan.", cat:"review"},
+  {s:"22:00", e:"04:00", icon:"😴", t:"Tidur", d:"", cat:"tidur"},
+];
+
+const TABS = [
+  {key:'weekday', label:'Senin–Kamis', days:[1,2,3,4]},
+  {key:'jumat', label:'Jumat', days:[5]},
+  {key:'sabtu', label:'Sabtu', days:[6]},
+  {key:'minggu', label:'Minggu', days:[0]},
+];
+
+function getDayType(jsDay){
+  if(jsDay>=1 && jsDay<=4) return 'weekday';
+  if(jsDay===5) return 'jumat';
+  if(jsDay===6) return 'sabtu';
+  return 'minggu';
+}
+function scheduleFor(key, jsDay){
+  if(key==='weekday') return weekdaySchedule(jsDay>=1&&jsDay<=4 ? jsDay : 1);
+  if(key==='jumat') return JUMAT;
+  if(key==='sabtu') return SABTU;
+  return MINGGU;
+}
+function toMin(hhmm){const [h,m]=hhmm.split(':').map(Number); return h*60+m;}
+
+let selectedKey = null;
+const now = new Date();
+const actualDayType = getDayType(now.getDay());
+selectedKey = actualDayType;
+
+function fmtTime(d){
+  return d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+function fmtDate(d){
+  return d.toLocaleDateString('id-ID',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
+}
+
+function classify(block, nowMin, wraps){
+  // wraps: block crosses midnight (s > e)
+  let isNow, isPast, isFuture;
+  if(wraps){
+    isNow = nowMin>=block.sMin || nowMin<block.eMin;
+    isPast = false; isFuture=false;
+  } else {
+    isNow = nowMin>=block.sMin && nowMin<block.eMin;
+    isPast = nowMin>=block.eMin;
+    isFuture = nowMin<block.sMin;
+  }
+  return {isNow,isPast,isFuture};
+}
+
+function render(){
+  const n = new Date();
+  document.getElementById('timeLabel').textContent = fmtTime(n);
+  document.getElementById('dateLabel').textContent = fmtDate(n);
+  const nowMin = n.getHours()*60 + n.getMinutes();
+  const jsDay = n.getDay();
+  const isToday = selectedKey === actualDayType;
+
+  // tabs
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  TABS.forEach(tab=>{
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (tab.key===selectedKey ? ' active' : '');
+    btn.innerHTML = tab.label + (tab.key===actualDayType ? '<span class="today-mark">• hari ini</span>' : '');
+    btn.onclick = ()=>{selectedKey = tab.key; render();};
+    tabsEl.appendChild(btn);
+  });
+
+  const sched = scheduleFor(selectedKey, jsDay).map(b=>{
+    const sMin = toMin(b.s), eMinRaw = toMin(b.e);
+    const wraps = eMinRaw <= sMin;
+    return {...b, sMin, eMin: eMinRaw, wraps};
+  });
+
+  // find current block only if viewing today
+  let current = null;
+  if(isToday){
+    current = sched.find(b=> classify(b, nowMin, b.wraps).isNow );
+  }
+
+  // hero
+  const hero = document.getElementById('hero');
+  const heroEyebrow = document.getElementById('heroEyebrow');
+  const heroTitle = document.getElementById('heroTitle');
+  const heroDesc = document.getElementById('heroDesc');
+  const heroNext = document.getElementById('heroNext');
+  const ringWrap = document.getElementById('ringWrap');
+
+  if(current){
+    hero.classList.remove('off-day');
+    heroEyebrow.textContent = 'SEDANG BERLANGSUNG';
+    heroTitle.textContent = current.icon + '  ' + current.t;
+    heroDesc.textContent = current.d || '';
+    const idx = sched.indexOf(current);
+    const nextBlock = sched[(idx+1) % sched.length];
+    let remain;
+    if(current.wraps){
+      remain = (current.eMin - nowMin + 1440) % 1440;
+    } else {
+      remain = current.eMin - nowMin;
+    }
+    heroNext.innerHTML = 'Berikutnya: <b>' + nextBlock.icon + ' ' + nextBlock.t + '</b> · dalam ' + remain + ' menit (' + nextBlock.s + ')';
+
+    // ring
+    ringWrap.style.display = '';
+    let total = current.wraps ? ((current.eMin - current.sMin + 1440) % 1440) : (current.eMin - current.sMin);
+    let elapsed = current.wraps ? ((nowMin - current.sMin + 1440) % 1440) : (nowMin - current.sMin);
+    const pct = Math.max(0, Math.min(100, Math.round((elapsed/total)*100)));
+    const circumference = 264;
+    const offset = circumference - (pct/100)*circumference;
+    document.getElementById('ringProgress').style.strokeDashoffset = offset;
+    document.getElementById('ringPct').textContent = pct + '%';
+  } else {
+    hero.classList.add('off-day');
+    ringWrap.style.display = 'none';
+    if(isToday){
+      heroEyebrow.textContent = 'DI LUAR JADWAL';
+      heroTitle.textContent = '🌤️ Belum ada kegiatan terjadwal saat ini';
+      heroDesc.textContent = 'Cek linimasa di bawah untuk kegiatan terdekat.';
+      heroNext.textContent = '';
+    } else {
+      const tabInfo = TABS.find(t=>t.key===selectedKey);
+      heroEyebrow.textContent = 'PRATINJAU';
+      heroTitle.textContent = '📅 Jadwal ' + tabInfo.label;
+      heroDesc.textContent = 'Ini bukan jadwal hari ini — highlight otomatis hanya aktif saat kamu melihat jadwal hari yang sedang berjalan.';
+      heroNext.textContent = '';
+    }
+  }
+
+  // timeline
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+  sched.forEach(b=>{
+    const {isNow,isPast} = isToday ? classify(b, nowMin, b.wraps) : {isNow:false,isPast:false};
+    const row = document.createElement('div');
+    row.className = 'block' + (isNow?' now':'') + (isPast?' past':'');
+    row.innerHTML = `
+      <div class="b-time">${b.s}–${b.e}</div>
+      <div class="b-icon">${b.icon}</div>
+      <div class="b-body">
+        <div class="b-title">${b.t}${isNow?'<span class="b-badge">SEKARANG</span>':''}</div>
+        ${b.d ? `<div class="b-desc">${b.d}</div>` : ''}
+        ${b.approx ? `<div class="b-approx">*perkiraan</div>` : ''}
+      </div>`;
+    tl.appendChild(row);
+    if(isNow) row.id = 'current-block';
+  });
+}
+
+render();
+setInterval(render, 15000);
+
+// auto-scroll to current block on first load
+window.addEventListener('load', ()=>{
+  const el = document.getElementById('current-block');
+  if(el) setTimeout(()=>el.scrollIntoView({behavior:'smooth', block:'center'}), 400);
+});
+</script>
+</body>
+</html>
