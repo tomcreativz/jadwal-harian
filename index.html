@@ -231,10 +231,21 @@
 </div>
 
 <script>
-const ROTATION = {1:'Content Creator (@albust.id)', 2:'Portfolio', 3:'Google Apps Script', 4:'Google Sheets'};
+const ROTATION = {2:'Portfolio', 3:'Google Apps Script', 4:'Google Sheets'};
+const MONDAY_ACCOUNTS = ['@albust.id', 'Anshorul Amal', 'Clipper Luar Negeri'];
 
-function weekdaySchedule(jsDay){
-  const deepWork = ROTATION[jsDay] || 'Content Creator (@albust.id)';
+function getISOWeek(d){
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+}
+
+function weekdaySchedule(jsDay, date){
+  const deepWork = jsDay===1
+    ? MONDAY_ACCOUNTS[getISOWeek(date) % 3]
+    : (ROTATION[jsDay] || 'Portfolio');
   return [
     {s:"04:00", e:"04:05", icon:"🌙", t:"Bangun & rapikan tempat tidur", d:"Minum air putih.", cat:"personal"},
     {s:"04:05", e:"04:25", icon:"🕌", t:"Tahajud", d:"", cat:"ibadah"},
@@ -302,7 +313,7 @@ const SABTU = [
   {s:"12:00", e:"12:30", icon:"🕌", t:"Shalat Zuhur & makan siang", d:"", cat:"ibadah"},
   {s:"12:30", e:"15:30", icon:"😴", t:"Tidur siang", d:"", cat:"tidur"},
   {s:"15:30", e:"15:45", icon:"🕌", t:"Shalat Ashar", d:"", cat:"ibadah"},
-  {s:"15:45", e:"18:00", icon:"🎬", t:"Produksi konten", d:"Rekam beberapa video sekaligus, edit, jadwalkan upload.", approx:true, cat:"konten"},
+  {s:"15:45", e:"18:00", icon:"🎬", t:"Produksi konten: Anshorul Amal & Clipper", d:"Kumpulkan & edit klip dakwah ustaz untuk Anshorul Amal, plus konten akun clipper luar negeri. Jadwalkan upload.", approx:true, cat:"konten"},
   {s:"18:00", e:"19:00", icon:"🧺", t:"Bersih-bersih & laundry", d:"Bersih-bersih kamar, laundry, minimalisme.", approx:true, cat:"personal"},
   {s:"19:00", e:"20:30", icon:"📚", t:"Malam santai", d:"Membaca, menonton video edukasi, santai.", approx:true, cat:"personal"},
   {s:"20:30", e:"22:00", icon:"📞", t:"Telepon dengan calon istri", d:"", cat:"personal"},
@@ -336,8 +347,8 @@ function getDayType(jsDay){
   if(jsDay===6) return 'sabtu';
   return 'minggu';
 }
-function scheduleFor(key, jsDay){
-  if(key==='weekday') return weekdaySchedule(jsDay>=1&&jsDay<=4 ? jsDay : 1);
+function scheduleFor(key, jsDay, date){
+  if(key==='weekday') return weekdaySchedule(jsDay>=1&&jsDay<=4 ? jsDay : 1, date);
   if(key==='jumat') return JUMAT;
   if(key==='sabtu') return SABTU;
   return MINGGU;
@@ -389,7 +400,7 @@ function render(){
     tabsEl.appendChild(btn);
   });
 
-  const sched = scheduleFor(selectedKey, jsDay).map(b=>{
+  const sched = scheduleFor(selectedKey, jsDay, n).map(b=>{
     const sMin = toMin(b.s), eMinRaw = toMin(b.e);
     const wraps = eMinRaw <= sMin;
     return {...b, sMin, eMin: eMinRaw, wraps};
