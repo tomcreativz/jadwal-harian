@@ -1,5 +1,5 @@
 // Service worker: membuat aplikasi bisa dibuka offline setelah pertama kali dimuat.
-const CACHE = 'rutinitas-v1';
+const CACHE = 'rutinitas-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
