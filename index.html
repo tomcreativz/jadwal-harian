@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rutinitas Harian — 1% Better Every Day</title>
+<meta name="theme-color" content="#0d1826">
+<meta name="description" content="Jadwal harian ibadah, keluarga, karier, dan konten.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rutinitas">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -31,7 +40,7 @@
     color: var(--ink);
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
-    padding: 28px 16px 80px;
+    padding: max(28px, env(safe-area-inset-top)) 16px 80px;
   }
   .wrap{max-width: 760px; margin: 0 auto;}
 
@@ -173,7 +182,7 @@
       <span class="time" id="timeLabel">--:--:--</span>
     </div>
     <h1>Rutinitas Harian</h1>
-    <div class="tagline">Ibadah, karier, dan aset — 1% lebih baik setiap hari. Kegiatan yang sedang berlangsung otomatis ditandai sesuai jam sekarang.</div>
+    <div class="tagline">Ibadah, keluarga, karier, dan konten — 1% lebih baik setiap hari. Kegiatan yang sedang berlangsung otomatis ditandai sesuai jam sekarang.</div>
   </header>
 
   <div class="hero" id="hero">
@@ -204,7 +213,8 @@
         <li>Subuh &amp; Isya berjamaah</li>
         <li>Olahraga</li>
         <li>Bekerja maksimal</li>
-        <li>1 sesi Deep Work (±1,5 jam)</li>
+        <li>Tugas konten hari ini (kalender 30 hari)</li>
+        <li>Waktu berkualitas bersama istri</li>
         <li>Membaca buku 20–30 menit</li>
         <li>Surah Al-Mulk</li>
         <li>Tidur sebelum 22.00</li>
@@ -214,38 +224,35 @@
       <h3>📋 Review Mingguan</h3>
       <ul>
         <li>Shalat berjamaah berapa kali minggu ini?</li>
-        <li>Berapa konten yang selesai?</li>
+        <li>Berapa video panjang &amp; Shorts yang selesai? (target 3 video + 6 Shorts)</li>
+        <li>Video mana yang paling lama ditonton?</li>
         <li>Ada progress portfolio?</li>
         <li>Ada project baru?</li>
         <li>Berapa halaman buku yang selesai?</li>
         <li>Berapa pemasukan minggu ini?</li>
+        <li>Bagaimana waktu bersama istri minggu ini?</li>
         <li>Apa yang harus diperbaiki minggu depan?</li>
       </ul>
     </div>
   </div>
 
   <div class="note">
-    Beberapa slot waktu di Sabtu &amp; Minggu (mis. istirahat siang, waktu bebas) tidak disebutkan secara eksplisit di rutinitas asli dan diperkirakan agar linimasa tetap utuh — ditandai <em>*perkiraan</em>. Jam mengikuti waktu lokal perangkat kamu.
+    Beberapa slot waktu di Sabtu &amp; Minggu (mis. istirahat siang, waktu bebas) tidak disebutkan secara eksplisit di rutinitas asli dan diperkirakan agar linimasa tetap utuh — ditandai <em>*perkiraan</em>. Tugas konten mengikuti kalender 30 hari (Jalur 1). Jam mengikuti waktu lokal perangkat kamu.
   </div>
 
 </div>
 
 <script>
-const ROTATION = {2:'Portfolio', 3:'Google Apps Script', 4:'Google Sheets'};
-const MONDAY_ACCOUNTS = ['@albust.id', 'Anshorul Amal', 'Clipper Luar Negeri'];
+// Kalender konten 30 hari (Jalur 1) — Senin–Kamis
+const KONTEN_HARIAN = {
+  1:{t:"Tulis 3 naskah → suara AI", d:"Tulis 3 naskah dari judul di BONUS 2, lalu ubah jadi suara AI. (±15 menit)"},
+  2:{t:"Video panjang 1", d:"Upload suara, kirim ke Flow, biarkan jalan. (±3 menit + menunggu). Setelah dikirim, langsung lanjut — hasilnya dicek besok."},
+  3:{t:"Render & upload video 1 + 2 Shorts", d:"Render & upload video panjang 1, lalu buat 2 Shorts. (±10 menit)"},
+  4:{t:"Video panjang 2", d:"Upload suara, kirim ke Flow, biarkan jalan. (±3 menit + menunggu). Hasilnya dicek besok."},
+};
 
-function getISOWeek(d){
-  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  const dayNum = date.getUTCDay() || 7;
-  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
-  return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
-}
-
-function weekdaySchedule(jsDay, date){
-  const deepWork = jsDay===1
-    ? MONDAY_ACCOUNTS[getISOWeek(date) % 3]
-    : (ROTATION[jsDay] || 'Portfolio');
+function weekdaySchedule(jsDay){
+  const konten = KONTEN_HARIAN[jsDay];
   return [
     {s:"04:00", e:"04:05", icon:"🌙", t:"Bangun & rapikan tempat tidur", d:"Minum air putih.", cat:"personal"},
     {s:"04:05", e:"04:25", icon:"🕌", t:"Tahajud", d:"", cat:"ibadah"},
@@ -270,8 +277,9 @@ function weekdaySchedule(jsDay, date){
     {s:"18:00", e:"18:30", icon:"🕌", t:"Maghrib berjamaah", d:"Dzikir petang.", cat:"ibadah"},
     {s:"18:30", e:"19:00", icon:"🍽️", t:"Makan malam", d:"", cat:"personal"},
     {s:"19:00", e:"19:30", icon:"🕌", t:"Isya berjamaah", d:"Membaca Surah Al-Mulk.", cat:"ibadah"},
-    {s:"19:30", e:"20:30", icon:"💻", t:"Deep Work: " + deepWork, d:"Fokus hanya satu prioritas.", cat:"deepwork"},
-    {s:"20:30", e:"22:00", icon:"📞", t:"Telepon dengan calon istri", d:"", cat:"personal"},
+    {s:"19:30", e:"19:50", icon:"🎬", t:"Konten: " + konten.t, d:konten.d, cat:"konten"},
+    {s:"19:50", e:"21:45", icon:"💞", t:"Waktu bersama istri", d:"Ngobrol santai, teh/kopi, tanpa gadget. Ini waktu berkualitas, bukan sisa waktu.", cat:"keluarga"},
+    {s:"21:45", e:"22:00", icon:"🌙", t:"Persiapan tidur", d:"Sikat gigi, wudu, doa tidur, simpan HP.", approx:true, cat:"persiapan"},
     {s:"22:00", e:"04:00", icon:"😴", t:"Tidur", d:"", cat:"tidur"},
   ];
 }
@@ -294,14 +302,17 @@ const JUMAT = [
   {s:"12:00", e:"13:50", icon:"☕", t:"Istirahat siang", d:"", approx:true, cat:"personal"},
   {s:"13:50", e:"15:30", icon:"💼", t:"Fokus bekerja", d:"", cat:"kerja"},
   {s:"15:30", e:"15:45", icon:"🕌", t:"Shalat Ashar", d:"", cat:"ibadah"},
-  {s:"15:45", e:"17:10", icon:"💼", t:"Fokus bekerja", d:"", cat:"kerja"},
-  {s:"17:10", e:"17:20", icon:"🏠", t:"Perjalanan pulang", d:"", cat:"perjalanan"},
-  {s:"17:20", e:"18:00", icon:"🛋️", t:"Recharge", d:"", cat:"personal"},
+  {s:"15:45", e:"17:00", icon:"💼", t:"Fokus bekerja", d:"", cat:"kerja"},
+  {s:"17:00", e:"17:10", icon:"🏠", t:"Perjalanan pulang", d:"", cat:"perjalanan"},
+  {s:"17:10", e:"18:00", icon:"🛋️", t:"Recharge", d:"", cat:"personal"},
   {s:"18:00", e:"18:30", icon:"🕌", t:"Maghrib berjamaah", d:"Dzikir petang.", cat:"ibadah"},
   {s:"18:30", e:"19:00", icon:"🍽️", t:"Makan malam", d:"", cat:"personal"},
   {s:"19:00", e:"19:30", icon:"🕌", t:"Isya berjamaah", d:"Membaca Surah Al-Mulk.", cat:"ibadah"},
-  {s:"19:30", e:"20:30", icon:"🌆", t:"Malam santai", d:"Review keuangan, review investasi, membalas pesan.", cat:"personal"},
-  {s:"20:30", e:"22:00", icon:"📞", t:"Telepon dengan calon istri", d:"", cat:"personal"},
+  {s:"19:30", e:"20:30", icon:"👨‍👩‍👧‍👦", t:"Arisan keluarga", d:"Agenda rutin Jumat setelah Isya.", cat:"keluarga"},
+  {s:"20:30", e:"20:45", icon:"🎬", t:"Konten: Render & upload video 2 + 2 Shorts", d:"Render & upload video panjang 2, lalu buat 2 Shorts. (±10 menit)", cat:"konten"},
+  {s:"20:45", e:"21:15", icon:"🌆", t:"Malam santai", d:"Review keuangan, review investasi, membalas pesan.", cat:"personal"},
+  {s:"21:15", e:"21:45", icon:"💞", t:"Waktu bersama istri", d:"Ngobrol santai, teh/kopi, tanpa gadget.", cat:"keluarga"},
+  {s:"21:45", e:"22:00", icon:"🌙", t:"Persiapan tidur", d:"Sikat gigi, wudu, doa tidur, simpan HP.", approx:true, cat:"persiapan"},
   {s:"22:00", e:"04:00", icon:"😴", t:"Tidur", d:"", cat:"tidur"},
 ];
 
@@ -309,46 +320,52 @@ const SABTU = [
   {s:"04:00", e:"06:00", icon:"🕌", t:"Rutinitas ibadah pagi", d:"Sama seperti Senin–Kamis: tahajud, subuh berjamaah, dzikir, tilawah, sarapan, dhuha.", cat:"ibadah"},
   {s:"06:00", e:"07:00", icon:"🚶", t:"Jalan kaki", d:"Sampai berkeringat.", cat:"olahraga"},
   {s:"07:00", e:"08:00", icon:"🚿", t:"Bersiap", d:"Mandi & persiapan.", approx:true, cat:"personal"},
-  {s:"08:00", e:"12:00", icon:"💻", t:"Deep Work", d:"Apps Script, portfolio, dashboard, project pribadi.", cat:"deepwork"},
+  {s:"08:00", e:"08:20", icon:"🎬", t:"Konten: Video panjang 3", d:"Upload suara, kirim ke Flow, biarkan jalan. (±3 menit + menunggu)", cat:"konten"},
+  {s:"08:20", e:"12:00", icon:"⏳", t:"Waktu bebas", d:"Santai, urusan rumah, atau waktu bersama istri. Video 3 diproses Flow di latar belakang, di-render besok.", approx:true, cat:"personal"},
   {s:"12:00", e:"12:30", icon:"🕌", t:"Shalat Zuhur & makan siang", d:"", cat:"ibadah"},
   {s:"12:30", e:"15:30", icon:"😴", t:"Tidur siang", d:"", cat:"tidur"},
   {s:"15:30", e:"15:45", icon:"🕌", t:"Shalat Ashar", d:"", cat:"ibadah"},
-  {s:"15:45", e:"18:00", icon:"🎬", t:"Produksi konten: Anshorul Amal & Clipper", d:"Kumpulkan & edit klip dakwah ustaz untuk Anshorul Amal, plus konten akun clipper luar negeri. Jadwalkan upload.", approx:true, cat:"konten"},
+  {s:"15:45", e:"18:00", icon:"💞", t:"Waktu bersama istri", d:"Jalan sore, belanja kebutuhan rumah, atau sekadar ngobrol santai.", approx:true, cat:"keluarga"},
   {s:"18:00", e:"19:00", icon:"🧺", t:"Bersih-bersih & laundry", d:"Bersih-bersih kamar, laundry, minimalisme.", approx:true, cat:"personal"},
-  {s:"19:00", e:"20:30", icon:"📚", t:"Malam santai", d:"Membaca, menonton video edukasi, santai.", approx:true, cat:"personal"},
-  {s:"20:30", e:"22:00", icon:"📞", t:"Telepon dengan calon istri", d:"", cat:"personal"},
+  {s:"19:00", e:"20:30", icon:"📚", t:"Malam santai", d:"Membaca, menonton video edukasi, atau santai bersama istri.", approx:true, cat:"personal"},
+  {s:"20:30", e:"21:45", icon:"💞", t:"Waktu bersama istri", d:"Malam berdua: ngobrol, nonton, atau camilan bareng.", cat:"keluarga"},
+  {s:"21:45", e:"22:00", icon:"🌙", t:"Persiapan tidur", d:"Sikat gigi, wudu, doa tidur, simpan HP.", approx:true, cat:"persiapan"},
   {s:"22:00", e:"04:00", icon:"😴", t:"Tidur", d:"", cat:"tidur"},
 ];
 
 const MINGGU = [
   {s:"04:00", e:"06:00", icon:"🕌", t:"Rutinitas ibadah pagi", d:"", approx:true, cat:"ibadah"},
   {s:"06:00", e:"08:00", icon:"💪", t:"Olahraga ringan", d:"", cat:"olahraga"},
-  {s:"08:00", e:"12:00", icon:"⏳", t:"Waktu bebas", d:"", approx:true, cat:"personal"},
+  {s:"08:00", e:"08:15", icon:"🎬", t:"Konten: Render & upload video 3 + 2 Shorts", d:"Render & upload video panjang 3 (hasil Flow dari Sabtu), lalu buat 2 Shorts. (±10 menit)", cat:"konten"},
+  {s:"08:15", e:"12:00", icon:"⏳", t:"Waktu bebas", d:"", approx:true, cat:"personal"},
   {s:"12:00", e:"12:30", icon:"🕌", t:"Shalat Zuhur & makan siang", d:"", cat:"ibadah"},
   {s:"12:30", e:"15:30", icon:"😴", t:"Tidur siang", d:"", cat:"tidur"},
   {s:"15:30", e:"15:45", icon:"🕌", t:"Shalat Ashar", d:"", cat:"ibadah"},
   {s:"15:45", e:"18:00", icon:"🏡", t:"Membantu orang tua", d:"Jika diperlukan.", approx:true, cat:"personal"},
   {s:"18:00", e:"19:00", icon:"🎒", t:"Persiapan kerja minggu depan", d:"", approx:true, cat:"persiapan"},
-  {s:"19:00", e:"20:30", icon:"📋", t:"Review mingguan", d:"Evaluasi shalat, konten, portfolio, project, bacaan, pemasukan.", cat:"review"},
-  {s:"20:30", e:"22:00", icon:"📞", t:"Telepon dengan calon istri", d:"", cat:"personal"},
+  {s:"19:00", e:"19:20", icon:"📊", t:"Konten: Lihat angka", d:"Video mana yang paling lama ditonton? Ulangi topiknya, catat sebagai bahan naskah Senin. (±15 menit)", cat:"konten"},
+  {s:"19:20", e:"20:30", icon:"📋", t:"Review mingguan", d:"Evaluasi shalat, konten, portfolio, project, bacaan, pemasukan, dan waktu bersama istri.", cat:"review"},
+  {s:"20:30", e:"21:45", icon:"💞", t:"Waktu bersama istri", d:"Ngobrol santai, teh/kopi, tanpa gadget.", cat:"keluarga"},
+  {s:"21:45", e:"22:00", icon:"🌙", t:"Persiapan tidur", d:"Sikat gigi, wudu, doa tidur, simpan HP.", approx:true, cat:"persiapan"},
   {s:"22:00", e:"04:00", icon:"😴", t:"Tidur", d:"", cat:"tidur"},
 ];
 
 const TABS = [
-  {key:'weekday', label:'Senin–Kamis', days:[1,2,3,4]},
-  {key:'jumat', label:'Jumat', days:[5]},
-  {key:'sabtu', label:'Sabtu', days:[6]},
-  {key:'minggu', label:'Minggu', days:[0]},
+  {key:'senin', label:'Senin', day:1},
+  {key:'selasa', label:'Selasa', day:2},
+  {key:'rabu', label:'Rabu', day:3},
+  {key:'kamis', label:'Kamis', day:4},
+  {key:'jumat', label:'Jumat', day:5},
+  {key:'sabtu', label:'Sabtu', day:6},
+  {key:'minggu', label:'Minggu', day:0},
 ];
 
 function getDayType(jsDay){
-  if(jsDay>=1 && jsDay<=4) return 'weekday';
-  if(jsDay===5) return 'jumat';
-  if(jsDay===6) return 'sabtu';
-  return 'minggu';
+  return TABS.find(t=>t.day===jsDay).key;
 }
-function scheduleFor(key, jsDay, date){
-  if(key==='weekday') return weekdaySchedule(jsDay>=1&&jsDay<=4 ? jsDay : 1, date);
+function scheduleFor(key){
+  const tab = TABS.find(t=>t.key===key);
+  if(tab.day>=1 && tab.day<=4) return weekdaySchedule(tab.day);
   if(key==='jumat') return JUMAT;
   if(key==='sabtu') return SABTU;
   return MINGGU;
@@ -483,6 +500,11 @@ function render(){
 
 render();
 setInterval(render, 15000);
+
+// Daftarkan service worker agar bisa diinstal & dibuka offline
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+}
 
 // auto-scroll to current block on first load
 window.addEventListener('load', ()=>{
