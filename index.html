@@ -167,6 +167,35 @@
   .card li:first-child{border-top:none;}
   .card li::before{content:"✓"; color: var(--teal); font-weight:700; flex-shrink:0;}
 
+  /* ---- waktu sholat ---- */
+  .sholat{background: var(--bg-elev); border:1px solid var(--line); border-radius:16px; padding:14px 14px 12px; margin-bottom:18px;}
+  .sholat-head{display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
+  .sholat-title{font-family:'Fraunces', serif; font-weight:600; font-size:14px;}
+  .sholat-next{font-family:'JetBrains Mono', monospace; font-size:11.5px; color: var(--warm);}
+  .sholat-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:6px;}
+  .pcell{text-align:center; padding:8px 2px; border-radius:10px; background: rgba(241,236,224,0.04); border:1px solid transparent;}
+  .pcell .pn{font-size:10.5px; color: var(--ink-mute); letter-spacing:.03em;}
+  .pcell .pt{font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:600; margin-top:3px;}
+  .pcell.next{border-color: var(--warm); background: rgba(226,137,90,0.10);}
+  .pcell.done{opacity:.45;}
+  .sholat-foot{display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11.5px; color: var(--ink-faint); font-family:'JetBrains Mono', monospace;}
+  .koreksi{display:inline-flex; align-items:center; gap:6px;}
+  .koreksi b{min-width:22px; text-align:center; color: var(--ink-mute); font-weight:600;}
+  .koreksi button{width:26px; height:26px; border-radius:50%; border:1px solid var(--line); background: var(--bg-elev-2); color: var(--ink); font-size:15px; line-height:1; cursor:pointer; padding:0;}
+
+  .ramadan-badge{font-size:12px; color: var(--gold); font-weight:600; margin:-4px 0 8px;}
+  .ramadan-badge:empty{display:none;}
+  .pengaturan{background: var(--bg-elev); border:1px solid var(--line); border-radius:16px; padding:12px 14px; margin-bottom:18px; font-size:13px; color: var(--ink-mute);}
+  .pengaturan summary{cursor:pointer; font-weight:600; color: var(--ink); list-style:none;}
+  .pengaturan summary::-webkit-details-marker{display:none;}
+  .set-row{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top:12px;}
+  .set-label{color: var(--ink);}
+  .set-val{font-family:'JetBrains Mono', monospace; font-size:11.5px; text-align:right;}
+  .set-msg{font-size:11.5px; color: var(--ink-faint); line-height:1.5; margin-top:8px;}
+  .set-msg:empty{display:none;}
+  .btn{font-family:'Inter'; font-size:12.5px; font-weight:600; color:#1a1206; background: var(--gold); border:none; border-radius:999px; padding:8px 14px; cursor:pointer;}
+  .btn.ghost{background: transparent; color: var(--ink-mute); border:1px solid var(--line);}
+  .pengaturan select{background: var(--bg-elev-2); color: var(--ink); border:1px solid var(--line); border-radius:10px; padding:7px 8px; font-size:12.5px; max-width:100%;}
   .note{
     font-size:11.5px; color: var(--ink-faint); line-height:1.6; margin-top:8px;
     border-top:1px dashed var(--line); padding-top:14px;
@@ -182,7 +211,7 @@
       <span class="time" id="timeLabel">--:--:--</span>
     </div>
     <h1>Rutinitas Harian</h1>
-    <div class="tagline">Ibadah, keluarga, karier, dan konten — 1% lebih baik setiap hari. Kegiatan yang sedang berlangsung otomatis ditandai sesuai jam sekarang.</div>
+    <div class="tagline">Ibadah, keluarga, karier, dan konten — 1% lebih baik setiap hari. Waktu sholat dihitung otomatis sesuai lokasi (bawaan: Kotawaringin Timur), termasuk mode Ramadan, dan seluruh kegiatan menyesuaikan. Kegiatan yang sedang berlangsung otomatis ditandai sesuai jam sekarang.</div>
   </header>
 
   <div class="hero" id="hero">
@@ -201,6 +230,40 @@
       <div class="ring-pct" id="ringPct">–</div>
     </div>
   </div>
+
+  <div class="sholat" id="sholat">
+    <div class="sholat-head">
+      <span class="sholat-title">🕌 Waktu Sholat · <span id="sholatLokasi">Kotawaringin Timur</span></span>
+      <span class="sholat-next" id="sholatNext"></span>
+    </div>
+    <div class="ramadan-badge" id="ramadanBadge"></div>
+    <div class="sholat-grid" id="sholatGrid"></div>
+    <div class="sholat-foot">
+      <span id="sholatExtra"></span>
+      <span class="koreksi">Koreksi <button type="button" id="kMin" aria-label="Kurangi 1 menit">−</button><b id="kVal">0</b><button type="button" id="kPlus" aria-label="Tambah 1 menit">+</button> mnt</span>
+    </div>
+  </div>
+
+  <details class="pengaturan">
+    <summary>⚙️ Pengaturan lokasi &amp; Ramadan</summary>
+    <div class="set-row"><span class="set-label">📍 Lokasi</span><span id="lokasiNama" class="set-val"></span></div>
+    <div class="set-row">
+      <button type="button" class="btn" id="btnLokasi">Gunakan lokasi saya</button>
+      <button type="button" class="btn ghost" id="btnLokasiDefault">Kotawaringin Timur</button>
+    </div>
+    <div class="set-msg" id="lokasiMsg"></div>
+    <div class="set-row"><span class="set-label">🌙 Mode Ramadan</span>
+      <select id="ramadanMode">
+        <option value="otomatis">Otomatis (kalender Hijriah)</option>
+        <option value="aktif">Selalu aktif</option>
+        <option value="nonaktif">Nonaktif</option>
+      </select>
+    </div>
+    <div class="set-row"><span class="set-label">Koreksi tanggal Hijriah</span>
+      <span class="koreksi"><button type="button" id="hMin" aria-label="Mundur 1 hari">−</button><b id="hVal">0</b><button type="button" id="hPlus" aria-label="Maju 1 hari">+</button> hari</span>
+    </div>
+    <div class="set-msg" id="hijriInfo"></div>
+  </details>
 
   <div class="tabs" id="tabs"></div>
   <div class="timeline" id="timeline"></div>
@@ -237,12 +300,107 @@
   </div>
 
   <div class="note">
-    Beberapa slot waktu di Sabtu &amp; Minggu (mis. istirahat siang, waktu bebas) tidak disebutkan secara eksplisit di rutinitas asli dan diperkirakan agar linimasa tetap utuh — ditandai <em>*perkiraan</em>. Tugas konten mengikuti kalender 30 hari (Jalur 1). Jam mengikuti waktu lokal perangkat kamu.
+    Beberapa slot waktu di Sabtu &amp; Minggu (mis. istirahat siang, waktu bebas) tidak disebutkan secara eksplisit di rutinitas asli dan diperkirakan agar linimasa tetap utuh — ditandai <em>*perkiraan</em>. Tugas konten mengikuti kalender 30 hari (Jalur 1). Waktu sholat dihitung otomatis (metode Kemenag RI) dengan selisih ±1–3 menit dari adzan setempat; gunakan tombol Koreksi bila perlu. Jam kerja (07.30, 13.50, 16.30, Jumat 17.00) dan jam tidur tetap (21.00; saat Ramadan 21.30). Mode Ramadan aktif otomatis lewat kalender Hijriah. Jam mengikuti waktu lokal perangkat kamu.
   </div>
 
 </div>
 
 <script>
+// ====== Perhitungan waktu sholat (metode Kemenag RI) ======
+const LOKASI_DEFAULT = {nama:'Kotawaringin Timur', lat:-2.5333, lng:112.95, auto:false}; // Sampit
+let LOKASI = Object.assign({}, LOKASI_DEFAULT);
+// Koreksi pengaman (ihtiyath) hasil kalibrasi terhadap jadwal Kemenag, dalam menit
+const IHTIYATH = {fajr:3, dhuhr:3.5, asr:3, maghrib:3, isha:3};
+
+const _sin=d=>Math.sin(d*Math.PI/180), _cos=d=>Math.cos(d*Math.PI/180), _tan=d=>Math.tan(d*Math.PI/180);
+const _asin=x=>Math.asin(x)*180/Math.PI, _acos=x=>Math.acos(x)*180/Math.PI;
+const _atan2=(y,x)=>Math.atan2(y,x)*180/Math.PI, _acot=x=>Math.atan(1/x)*180/Math.PI;
+const _fix=(a,b)=>{a=a-b*Math.floor(a/b);return a<0?a+b:a};
+function _julian(y,m,d){ if(m<=2){y-=1;m+=12} const A=Math.floor(y/100),B=2-A+Math.floor(A/4); return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5; }
+function _sunPos(jd){
+  const D=jd-2451545.0, g=_fix(357.529+0.98560028*D,360), q=_fix(280.459+0.98564736*D,360);
+  const L=_fix(q+1.915*_sin(g)+0.020*_sin(2*g),360), e=23.439-0.00000036*D;
+  const RA=_fix(_atan2(_cos(e)*_sin(L),_cos(L)),360)/15;
+  let eqt=q/15-RA; if(eqt>12)eqt-=24; if(eqt<-12)eqt+=24;
+  return {decl:_asin(_sin(e)*_sin(L)), eqt};
+}
+// hasil dalam jam desimal (waktu lokal perangkat)
+function _hitungAstronomi(y,m,d,lat,lng,tz){
+  const SUN=0.833, FAJR=20, ISHA=18;
+  const jd=_julian(y,m,d)-lng/(15*24);
+  const noonAt=t=>12+tz-lng/15-_sunPos(jd+t/24).eqt;
+  let N=noonAt(12);
+  const noon=()=>noonAt(N);
+  N=noon();
+  const sudut=(ang,t0,sebelum)=>{let t=t0; for(let i=0;i<3;i++){const s=_sunPos(jd+t/24); const v=(-_sin(ang)-_sin(lat)*_sin(s.decl))/(_cos(lat)*_cos(s.decl)); t=noon()+(sebelum?-1:1)*_acos(v)/15;} return t;};
+  const ashar=t0=>{let t=t0; for(let i=0;i<3;i++){const s=_sunPos(jd+t/24); const a=-_acot(1+_tan(Math.abs(lat-s.decl))); const v=(-_sin(a)-_sin(lat)*_sin(s.decl))/(_cos(lat)*_cos(s.decl)); t=noon()+_acos(v)/15;} return t;};
+  return {fajr:sudut(FAJR,5,true), sunrise:sudut(SUN,6,true), dhuhr:N, asr:ashar(15), maghrib:sudut(SUN,18,false), isha:sudut(ISHA,19,false)};
+}
+
+function getKoreksi(){ try{ const v=parseInt(localStorage.getItem('koreksiSholat'),10); return isNaN(v)?0:Math.max(-10,Math.min(10,v)); }catch(e){ return 0; } }
+function setKoreksi(v){ try{ localStorage.setItem('koreksiSholat', String(Math.max(-10,Math.min(10,v)))); }catch(e){} }
+function baca(k,def){ try{ const v=localStorage.getItem(k); return v===null?def:JSON.parse(v); }catch(e){ return def; } }
+function simpan(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+// ====== Lokasi (bawaan Kotawaringin Timur; bisa otomatis dari lokasi perangkat) ======
+function muatLokasi(){
+  const v = baca('lokasi', null);
+  if(v && v.mode==='auto' && isFinite(v.lat) && isFinite(v.lng) && Math.abs(v.lat)<=60) LOKASI = {nama:'Lokasi perangkat', lat:v.lat, lng:v.lng, auto:true};
+  else LOKASI = Object.assign({}, LOKASI_DEFAULT);
+}
+function pakaiLokasiDefault(){ simpan('lokasi',{mode:'default'}); muatLokasi(); }
+function namaLokasi(){ return LOKASI.auto ? 'Lokasi perangkat ('+LOKASI.lat.toFixed(2)+', '+LOKASI.lng.toFixed(2)+')' : LOKASI.nama; }
+function perbaruiLokasi(cb){
+  if(!navigator.geolocation){ cb && cb('Browser ini tidak mendukung lokasi.'); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos=>{ simpan('lokasi',{mode:'auto', lat:pos.coords.latitude, lng:pos.coords.longitude, ts:Date.now()}); muatLokasi(); cb && cb('Lokasi diperbarui.'); },
+    err=>{ cb && cb(err && err.code===1 ? 'Izin lokasi ditolak. Izinkan lokasi untuk situs ini di pengaturan browser.' : 'Lokasi belum tersedia; memakai lokasi tersimpan.'); },
+    {enableHighAccuracy:false, timeout:10000, maximumAge:1800000}
+  );
+}
+
+// Semua nilai dalam menit sejak 00:00
+function waktuHariIni(date, koreksi){
+  const k = koreksi===undefined ? getKoreksi() : koreksi;
+  const tz = -date.getTimezoneOffset()/60;
+  const hitung = lok => _hitungAstronomi(date.getFullYear(), date.getMonth()+1, date.getDate(), lok.lat, lok.lng, tz);
+  let r = hitung(LOKASI);
+  if([r.fajr,r.sunrise,r.dhuhr,r.asr,r.maghrib,r.isha].some(x=>!isFinite(x))) r = hitung(LOKASI_DEFAULT);
+  const mnt = (jam, ih) => Math.round(jam*60 + ih + k);
+  const sunrise = Math.round(r.sunrise*60);
+  const fajr = mnt(r.fajr, IHTIYATH.fajr);
+  return {
+    fajr, imsak: fajr-10, sunrise, dhuha: sunrise + 28,
+    dhuhr: mnt(r.dhuhr, IHTIYATH.dhuhr), asr: mnt(r.asr, IHTIYATH.asr),
+    maghrib: mnt(r.maghrib, IHTIYATH.maghrib), isha: mnt(r.isha, IHTIYATH.isha)
+  };
+}
+function fmtHM(m){ m=((Math.round(m)%1440)+1440)%1440; return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); }
+
+// ====== Ramadan (otomatis lewat kalender Hijriah, bisa dikoreksi / dipaksa) ======
+const BULAN_HIJRI = ['Muharram','Safar','Rabiul Awal','Rabiul Akhir','Jumadil Awal','Jumadil Akhir','Rajab',"Sya'ban",'Ramadan','Syawal',"Dzulqa'dah",'Dzulhijjah'];
+function hijriDari(date, offsetHari){
+  try{
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate()+offsetHari, 12);
+    const p = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(d);
+    const g = t => parseInt((p.find(x=>x.type===t)||{}).value,10);
+    const r = {d:g('day'), m:g('month'), y:g('year')};
+    return isNaN(r.m) ? null : r;
+  }catch(e){ return null; }
+}
+function statusRamadan(date){
+  const mode = baca('ramadanMode','otomatis');
+  const off = Math.max(-2,Math.min(2,parseInt(baca('hijriOffset',0),10)||0));
+  const h = hijriDari(date, off);
+  const aktif = mode==='aktif' ? true : mode==='nonaktif' ? false : !!(h && h.m===9);
+  return {aktif, mode, off, hijri:h, hari:(h && h.m===9) ? h.d : null};
+}
+
+// ====== Jam tetap (tidak mengikuti sholat) ======
+const JAM = {mulaiKerja:450, mulaiSiang:830, pulangSenKam:990, pulangJumat:1020, persiapanTidur:1245, tidur:1260}; // 07:30, 13:50, 16:30, 17:00, 20:45, 21:00
+// Pengaturan khusus Ramadan (mudah diubah)
+const RAMADAN = {tarawih:40, tilawah:25, persiapanTidur:1275, tidur:1290, arisanTetap:false}; // tidur 21:30; arisanTetap=true → arisan Jumat tetap diadakan (tarawih di rumah setelahnya)
+
 // Kalender konten 30 hari (Jalur 1) — Senin–Kamis
 const KONTEN_HARIAN = {
   1:{t:"Tulis 3 naskah → suara AI", d:"Tulis 3 naskah dari judul di BONUS 2, lalu ubah jadi suara AI. (±15 menit)"},
@@ -251,111 +409,198 @@ const KONTEN_HARIAN = {
   4:{t:"Video panjang 2", d:"Upload suara, kirim ke Flow, biarkan jalan. (±3 menit + menunggu). Hasilnya dicek besok."},
 };
 
-function weekdaySchedule(jsDay){
-  const konten = KONTEN_HARIAN[jsDay];
+// ====== Mesin jadwal ======
+// Tiap langkah: {icon,t,cat,dur,d,approx,at}. "at" (menit) = waktu mulai pasti; tanpa "at" = menyambung dari langkah sebelumnya.
+// Tiap blok berakhir tepat saat blok berikutnya dimulai, jadi jeda/kelebihan waktu diserap blok sebelum titik tetap.
+const S=(icon,t,cat,dur,o)=>Object.assign({icon,t,cat,dur,d:''},o||{});
+
+function susun(steps){
+  let cursor=0;
+  const a=steps.map(st=>{ const s = st.at!=null ? st.at : cursor; cursor = s + st.dur; return Object.assign({}, st, {s}); });
+  for(let i=a.length-2;i>=0;i--) a[i].s = Math.min(a[i].s, a[i+1].s);   // blok tidak boleh mulai setelah titik tetap berikutnya
+  const out=[];
+  a.forEach((b,i)=>{
+    const e = i<a.length-1 ? a[i+1].s : a[0].s + 1440;
+    if(e<=b.s) return;                                                   // blok yang tidak muat dibuang
+    out.push({s:fmtHM(b.s), e:fmtHM(e), icon:b.icon, t:b.t, d:b.d, approx:b.approx, cat:b.cat});
+  });
+  return out;
+}
+
+const tutupMalam = R => [
+  S("🌙","Persiapan tidur","persiapan",15,{at:R?RAMADAN.persiapanTidur:JAM.persiapanTidur, approx:true, d:"Sikat gigi, wudu, doa tidur, simpan HP."}),
+  S("😴","Tidur","tidur",0,{at:R?RAMADAN.tidur:JAM.tidur}),
+];
+
+const tilawahIsya = R => S("📖", R?"Tilawah / Tadarus":"Tilawah / Murajaah","ibadah", R?RAMADAN.tilawah:15, {d:"Tilawah khusus ba'da Isya."});
+const tarawih = () => S("🕌","Shalat Tarawih","ibadah",RAMADAN.tarawih,{d:"Tarawih & witir; sesuaikan jumlah rakaat."});
+
+// Dari Subuh sampai dhuha — bangun lebih awal saat Ramadan untuk sahur
+function awalHari(T, R, akhirPekan){
+  if(!R) return akhirPekan ? [
+    S("🌙","Bangun & Tahajud","ibadah",25,{at:T.fajr-30, d:"Bangun, rapikan tempat tidur, minum air, tahajud."}),
+    S("🕌","Persiapan ke masjid","persiapan",5),
+    S("🕌","Shalat Subuh berjamaah","ibadah",30,{at:T.fajr, d:"Dzikir pagi."}),
+  ] : [
+    S("🌙","Bangun & rapikan tempat tidur","personal",5,{at:T.fajr-30, d:"Minum air putih."}),
+    S("🕌","Tahajud","ibadah",20),
+    S("🕌","Persiapan ke masjid","persiapan",5),
+    S("🕌","Shalat Subuh berjamaah","ibadah",30,{at:T.fajr, d:"Dzikir pagi."}),
+  ];
   return [
-    {s:"04:00", e:"04:05", icon:"🌙", t:"Bangun & rapikan tempat tidur", d:"Minum air putih.", cat:"personal"},
-    {s:"04:05", e:"04:25", icon:"🕌", t:"Tahajud", d:"", cat:"ibadah"},
-    {s:"04:25", e:"04:30", icon:"🕌", t:"Persiapan ke masjid", d:"", cat:"persiapan"},
-    {s:"04:30", e:"05:00", icon:"🕌", t:"Shalat Subuh berjamaah", d:"Dzikir pagi.", cat:"ibadah"},
-    {s:"05:00", e:"05:30", icon:"💪", t:"Olahraga ringan", d:"Push up, squat, wall sit, stretching.", cat:"olahraga"},
-    {s:"05:30", e:"05:40", icon:"🧘", t:"Jeda istirahat", d:"Duduk santai, atur napas, minum air, biarkan keringat mengering sebelum mandi.", cat:"personal"},
-    {s:"05:40", e:"05:55", icon:"🚿", t:"Mandi", d:"", cat:"personal"},
-    {s:"05:55", e:"06:10", icon:"🕌", t:"Shalat Dhuha", d:"", cat:"ibadah"},
-    {s:"06:10", e:"06:25", icon:"📖", t:"Tilawah / Murajaah", d:"10–15 menit.", cat:"ibadah"},
-    {s:"06:25", e:"06:45", icon:"🥣", t:"Sarapan", d:"", cat:"personal"},
-    {s:"06:45", e:"07:20", icon:"🎒", t:"Persiapan kerja", d:"", cat:"persiapan"},
-    {s:"07:20", e:"07:30", icon:"🛵", t:"Berangkat kerja", d:"", cat:"perjalanan"},
-    {s:"07:30", e:"11:00", icon:"💼", t:"Fokus bekerja", d:"Input data rapi, SAP, stock, reporting.", cat:"kerja"},
-    {s:"11:00", e:"11:30", icon:"🍽️", t:"Makan siang", d:"", cat:"personal"},
-    {s:"11:30", e:"12:00", icon:"🕌", t:"Shalat Zuhur", d:"", cat:"ibadah"},
-    {s:"12:00", e:"13:50", icon:"☕", t:"Istirahat siang", d:"", approx:true, cat:"personal"},
-    {s:"13:50", e:"15:30", icon:"💼", t:"Fokus bekerja", d:"", cat:"kerja"},
-    {s:"15:30", e:"15:45", icon:"🕌", t:"Shalat Ashar", d:"", cat:"ibadah"},
-    {s:"15:45", e:"16:30", icon:"💼", t:"Fokus bekerja", d:"", cat:"kerja"},
-    {s:"16:30", e:"16:40", icon:"🏠", t:"Perjalanan pulang", d:"", cat:"perjalanan"},
-    {s:"16:40", e:"18:00", icon:"🛋️", t:"Recharge", d:"Rebahan, ngobrol keluarga, teh/kopi, scrolling maks 20–30 menit. Tidak merasa bersalah — jangan langsung buka laptop.", cat:"personal"},
-    {s:"18:00", e:"18:30", icon:"🕌", t:"Maghrib berjamaah", d:"Dzikir petang.", cat:"ibadah"},
-    {s:"18:30", e:"19:00", icon:"🍽️", t:"Makan malam", d:"", cat:"personal"},
-    {s:"19:00", e:"19:30", icon:"🕌", t:"Isya berjamaah", d:"Membaca Surah Al-Mulk.", cat:"ibadah"},
-    {s:"19:30", e:"19:50", icon:"🎬", t:"Konten: " + konten.t, d:konten.d, cat:"konten"},
-    {s:"19:50", e:"21:45", icon:"💞", t:"Waktu bersama istri", d:"Ngobrol santai, teh/kopi, tanpa gadget. Ini waktu berkualitas, bukan sisa waktu.", cat:"keluarga"},
-    {s:"21:45", e:"22:00", icon:"🌙", t:"Persiapan tidur", d:"Sikat gigi, wudu, doa tidur, simpan HP.", approx:true, cat:"persiapan"},
-    {s:"22:00", e:"04:00", icon:"😴", t:"Tidur", d:"", cat:"tidur"},
+    S("🌙","Bangun & rapikan tempat tidur","personal",5,{at:T.fajr-55, d:"Minum air putih."}),
+    S("🕌","Tahajud","ibadah",15),
+    S("🍚","Sahur","personal",25,{d:"Selesai sebelum Imsak "+fmtHM(T.imsak)+". Perbanyak air putih."}),
+    S("🕌","Persiapan ke masjid","persiapan",10,{d:"Sikat gigi, wudu."}),
+    S("🕌","Shalat Subuh berjamaah","ibadah",30,{at:T.fajr, d:"Dzikir pagi."}),
   ];
 }
 
-const JUMAT = [
-  {s:"04:00", e:"04:05", icon:"🌙", t:"Bangun & rapikan tempat tidur", d:"", cat:"personal"},
-  {s:"04:05", e:"04:25", icon:"🕌", t:"Tahajud", d:"", cat:"ibadah"},
-  {s:"04:25", e:"04:30", icon:"🕌", t:"Persiapan ke masjid", d:"", cat:"persiapan"},
-  {s:"04:30", e:"05:00", icon:"🕌", t:"Shalat Subuh berjamaah", d:"Dzikir pagi.", cat:"ibadah"},
-  {s:"05:00", e:"05:30", icon:"💪", t:"Olahraga ringan", d:"", cat:"olahraga"},
-  {s:"05:30", e:"05:40", icon:"🧘", t:"Jeda istirahat", d:"Duduk santai, atur napas, minum air, biarkan keringat mengering sebelum mandi.", cat:"personal"},
-    {s:"05:40", e:"05:55", icon:"🚿", t:"Mandi", d:"", cat:"personal"},
-  {s:"05:55", e:"06:10", icon:"🕌", t:"Shalat Dhuha", d:"", cat:"ibadah"},
-  {s:"06:10", e:"06:25", icon:"📖", t:"Tilawah / Murajaah", d:"", cat:"ibadah"},
-  {s:"06:25", e:"06:45", icon:"🥣", t:"Sarapan", d:"", cat:"personal"},
-  {s:"06:45", e:"07:20", icon:"🎒", t:"Persiapan kerja", d:"", cat:"persiapan"},
-  {s:"07:20", e:"07:30", icon:"🛵", t:"Berangkat kerja", d:"", cat:"perjalanan"},
-  {s:"07:30", e:"11:00", icon:"💼", t:"Fokus bekerja", d:"", cat:"kerja"},
-  {s:"11:00", e:"11:30", icon:"🍽️", t:"Makan siang", d:"", cat:"personal"},
-  {s:"11:30", e:"12:00", icon:"🕌", t:"Shalat Jumat", d:"", cat:"ibadah"},
-  {s:"12:00", e:"13:50", icon:"☕", t:"Istirahat siang", d:"", approx:true, cat:"personal"},
-  {s:"13:50", e:"15:30", icon:"💼", t:"Fokus bekerja", d:"", cat:"kerja"},
-  {s:"15:30", e:"15:45", icon:"🕌", t:"Shalat Ashar", d:"", cat:"ibadah"},
-  {s:"15:45", e:"17:00", icon:"💼", t:"Fokus bekerja", d:"", cat:"kerja"},
-  {s:"17:00", e:"17:10", icon:"🏠", t:"Perjalanan pulang", d:"", cat:"perjalanan"},
-  {s:"17:10", e:"18:00", icon:"🛋️", t:"Recharge", d:"", cat:"personal"},
-  {s:"18:00", e:"18:30", icon:"🕌", t:"Maghrib berjamaah", d:"Dzikir petang.", cat:"ibadah"},
-  {s:"18:30", e:"19:00", icon:"🍽️", t:"Makan malam", d:"", cat:"personal"},
-  {s:"19:00", e:"19:30", icon:"🕌", t:"Isya berjamaah", d:"Membaca Surah Al-Mulk.", cat:"ibadah"},
-  {s:"19:30", e:"20:30", icon:"👨‍👩‍👧‍👦", t:"Arisan keluarga", d:"Agenda rutin Jumat setelah Isya.", cat:"keluarga"},
-  {s:"20:30", e:"20:45", icon:"🎬", t:"Konten: Render & upload video 2 + 2 Shorts", d:"Render & upload video panjang 2, lalu buat 2 Shorts. (±10 menit)", cat:"konten"},
-  {s:"20:45", e:"21:15", icon:"🌆", t:"Malam santai", d:"Review keuangan, review investasi, membalas pesan.", cat:"personal"},
-  {s:"21:15", e:"21:45", icon:"💞", t:"Waktu bersama istri", d:"Ngobrol santai, teh/kopi, tanpa gadget.", cat:"keluarga"},
-  {s:"21:45", e:"22:00", icon:"🌙", t:"Persiapan tidur", d:"Sikat gigi, wudu, doa tidur, simpan HP.", approx:true, cat:"persiapan"},
-  {s:"22:00", e:"04:00", icon:"😴", t:"Tidur", d:"", cat:"tidur"},
+function pagiKerja(T,R){ return [
+  ...awalHari(T,R,false),
+  S("💪","Olahraga ringan","olahraga",R?20:30,{d:R?"Intensitas rendah: jalan santai, stretching.":"Push up, squat, wall sit, stretching."}),
+  S("🧘","Jeda istirahat","personal",10,{d:"Duduk santai, atur napas, minum air, biarkan keringat mengering sebelum mandi."}),
+  S("📚","Membaca buku","personal",20,{d:"20–30 menit. Durasi menyesuaikan, supaya Dhuha tepat setelah mandi di waktunya."}),
+  S("🚿","Mandi","personal",15,{at:T.dhuha-15}),
+  S("🕌","Shalat Dhuha","ibadah",15,{d:"Setelah mandi."}),
+  ...(R ? [] : [S("🥣","Sarapan","personal",20)]),
+  S("💞","Santai bersama istri","keluarga",30,{d:"Ngobrol santai sebelum berangkat kerja.", approx:true}),
+  S("🎒","Persiapan kerja","persiapan",35,{at:JAM.mulaiKerja-10-35}),
+  S("🛵","Berangkat kerja","perjalanan",10),
+]; }
+
+function kerjaSiang(T, jumat, R){
+  const sholat = S("🕌", jumat?"Shalat Jumat":"Shalat Zuhur","ibadah",30,{at:T.dhuhr});
+  let tengah;
+  if(R) tengah = [sholat];
+  else {
+    const pertama = T.dhuhr - 660 >= 25;           // makan siang 11.00 hanya jika cukup waktu sebelum Zuhur
+    const makan = pertama ? S("🍽️","Makan siang","personal",30,{at:660}) : S("🍽️","Makan siang","personal",30);
+    tengah = pertama ? [makan, sholat] : [sholat, makan];
+  }
+  return [
+    S("💼","Fokus bekerja","kerja",210,{at:JAM.mulaiKerja, d: jumat?'':"Input data rapi, SAP, stock, reporting."}),
+    ...tengah,
+    S("☕", R?"Istirahat siang (tidur singkat)":"Istirahat siang","personal",100,{approx:true, d:R?"Tidur singkat 20–30 menit membantu menjaga tenaga saat puasa.":''}),
+    S("💼","Fokus bekerja","kerja",100,{at:JAM.mulaiSiang}),
+    S("🕌","Shalat Ashar","ibadah",15,{at:T.asr}),
+    S("💼","Fokus bekerja","kerja",60),
+    S("🏠","Perjalanan pulang","perjalanan",10,{at: jumat?JAM.pulangJumat:JAM.pulangSenKam}),
+  ];
+}
+
+// Dari pulang kerja / sore sampai Isya
+function sorePetang(T, R, rechargeDesc, pulangSelesai){
+  if(!R) return [
+    S("🛋️","Recharge","personal",150,{d:rechargeDesc||''}),
+    S("🕌","Maghrib berjamaah","ibadah",30,{at:T.maghrib, d:"Dzikir petang."}),
+    S("🍽️","Makan malam","personal",30),
+    S("🕌","Isya berjamaah","ibadah",30,{at:T.isha, d:"Membaca Surah Al-Mulk."}),
+  ];
+  return [
+    S("🛋️","Recharge","personal",150,{d:"Istirahat santai; hindari aktivitas berat saat puasa."}),
+    S("🥗","Persiapan berbuka","keluarga",30,{at:Math.max(T.maghrib-30, pulangSelesai), d:"Siapkan takjil bersama istri."}),
+    S("🌅","Berbuka puasa","ibadah",15,{at:T.maghrib, d:"Doa berbuka, mulai dengan kurma & air putih."}),
+    S("🕌","Maghrib berjamaah","ibadah",25,{d:"Dzikir petang."}),
+    S("🍽️","Makan malam","keluarga",30,{d:"Bersama istri."}),
+    S("🕌","Isya berjamaah","ibadah",30,{at:T.isha, d:"Membaca Surah Al-Mulk."}),
+  ];
+}
+
+function jadwalSenKam(jsDay, T, R){
+  const K = KONTEN_HARIAN[jsDay];
+  return susun([
+    ...pagiKerja(T,R),
+    ...kerjaSiang(T,false,R),
+    ...sorePetang(T,R,"Rebahan, ngobrol keluarga, teh/kopi, scrolling maks 20–30 menit. Tidak merasa bersalah — jangan langsung buka laptop.", JAM.pulangSenKam+10),
+    ...(R ? [tarawih()] : []),
+    tilawahIsya(R),
+    S("🎬","Konten: "+K.t,"konten",R?15:20,{d:K.d}),
+    S("💞","Waktu bersama istri","keluarga",120,{d:"Ngobrol santai, teh/kopi, tanpa gadget. Ini waktu berkualitas, bukan sisa waktu."}),
+    ...tutupMalam(R),
+  ]);
+}
+
+function jadwalJumat(T, R){
+  const konten = at => S("🎬","Konten: Render & upload video 2 + 2 Shorts","konten",15,Object.assign({d:"Render & upload video panjang 2, lalu buat 2 Shorts. (±10 menit)"}, at!=null?{at}:{}));
+  const arisan = S("👨‍👩‍👧‍👦","Arisan keluarga","keluarga",75,{d:"Agenda rutin Jumat setelah Isya, selesai 20.30."});
+  let malam;
+  if(!R) malam = [tilawahIsya(false), arisan, konten(1230)];
+  else if(RAMADAN.arisanTetap) malam = [konten(), arisan, S("🕌","Shalat Tarawih","ibadah",RAMADAN.tarawih,{at:1230, d:"Tarawih & witir di rumah setelah arisan."})];
+  else malam = [tarawih(), tilawahIsya(true), konten(), S("💞","Waktu bersama istri","keluarga",120,{d:"Ngobrol santai, teh/kopi, tanpa gadget."})];
+  return susun([
+    ...pagiKerja(T,R),
+    ...kerjaSiang(T,true,R),
+    ...sorePetang(T,R,'',JAM.pulangJumat+10),
+    ...malam,
+    ...tutupMalam(R),
+  ]);
+}
+
+const malamAkhirPekan = (T,R) => R ? [
+  S("🥗","Persiapan berbuka","keluarga",30,{at:T.maghrib-30, d:"Siapkan takjil bersama istri."}),
+  S("🌅","Berbuka puasa","ibadah",15,{at:T.maghrib, d:"Doa berbuka, mulai dengan kurma & air putih."}),
+  S("🕌","Maghrib berjamaah","ibadah",25,{d:"Dzikir petang."}),
+  S("🍽️","Makan malam","keluarga",30,{d:"Bersama istri."}),
+  S("🕌","Isya berjamaah","ibadah",30,{at:T.isha, d:"Membaca Surah Al-Mulk."}),
+  tarawih(),
+  tilawahIsya(true),
+] : [
+  S("🕌","Maghrib berjamaah","ibadah",30,{at:T.maghrib, d:"Dzikir petang."}),
+  S("🍽️","Makan malam","personal",30,{approx:true}),
+  S("🕌","Isya berjamaah","ibadah",30,{at:T.isha, d:"Membaca Surah Al-Mulk."}),
+  tilawahIsya(false),
 ];
 
-const SABTU = [
-  {s:"04:00", e:"06:00", icon:"🕌", t:"Rutinitas ibadah pagi", d:"Sama seperti Senin–Kamis: tahajud, subuh berjamaah, dzikir, tilawah, sarapan.", cat:"ibadah"},
-  {s:"06:00", e:"07:00", icon:"🚶", t:"Jalan kaki", d:"Sampai berkeringat.", cat:"olahraga"},
-  {s:"07:00", e:"07:10", icon:"🧘", t:"Jeda istirahat", d:"Duduk santai, minum air, biarkan keringat mengering sebelum mandi.", approx:true, cat:"personal"},
-  {s:"07:10", e:"07:45", icon:"🚿", t:"Bersiap", d:"Mandi & persiapan.", approx:true, cat:"personal"},
-  {s:"07:45", e:"08:00", icon:"🕌", t:"Shalat Dhuha", d:"Setelah mandi.", approx:true, cat:"ibadah"},
-  {s:"08:00", e:"08:20", icon:"🎬", t:"Konten: Video panjang 3", d:"Upload suara, kirim ke Flow, biarkan jalan. (±3 menit + menunggu)", cat:"konten"},
-  {s:"08:20", e:"12:00", icon:"⏳", t:"Waktu bebas", d:"Santai, urusan rumah, atau waktu bersama istri. Video 3 diproses Flow di latar belakang, di-render besok.", approx:true, cat:"personal"},
-  {s:"12:00", e:"12:30", icon:"🕌", t:"Shalat Zuhur & makan siang", d:"", cat:"ibadah"},
-  {s:"12:30", e:"15:30", icon:"😴", t:"Tidur siang", d:"", cat:"tidur"},
-  {s:"15:30", e:"15:45", icon:"🕌", t:"Shalat Ashar", d:"", cat:"ibadah"},
-  {s:"15:45", e:"18:00", icon:"💞", t:"Waktu bersama istri", d:"Jalan sore, belanja kebutuhan rumah, atau sekadar ngobrol santai.", approx:true, cat:"keluarga"},
-  {s:"18:00", e:"19:00", icon:"🧺", t:"Bersih-bersih & laundry", d:"Bersih-bersih kamar, laundry, minimalisme.", approx:true, cat:"personal"},
-  {s:"19:00", e:"20:30", icon:"📚", t:"Malam santai", d:"Membaca, menonton video edukasi, atau santai bersama istri.", approx:true, cat:"personal"},
-  {s:"20:30", e:"21:45", icon:"💞", t:"Waktu bersama istri", d:"Malam berdua: ngobrol, nonton, atau camilan bareng.", cat:"keluarga"},
-  {s:"21:45", e:"22:00", icon:"🌙", t:"Persiapan tidur", d:"Sikat gigi, wudu, doa tidur, simpan HP.", approx:true, cat:"persiapan"},
-  {s:"22:00", e:"04:00", icon:"😴", t:"Tidur", d:"", cat:"tidur"},
-];
+const bacaPagiAkhirPekan = R => S("📚", R?"Membaca buku":"Membaca buku & sarapan","personal",60,{d: R?"Membaca buku 20–30 menit, lalu istirahat.":"Membaca buku 20–30 menit, lalu sarapan.", approx:true});
+const zuhurAkhirPekan = (T,R) => S("🕌", R?"Shalat Zuhur":"Shalat Zuhur & makan siang","ibadah",30,{at:T.dhuhr});
 
-const MINGGU = [
-  {s:"04:00", e:"06:00", icon:"🕌", t:"Rutinitas ibadah pagi", d:"", approx:true, cat:"ibadah"},
-  {s:"06:00", e:"08:00", icon:"💪", t:"Olahraga ringan", d:"", cat:"olahraga"},
-  {s:"08:00", e:"08:10", icon:"🧘", t:"Jeda istirahat", d:"Duduk santai, minum air, biarkan keringat mengering sebelum mandi.", approx:true, cat:"personal"},
-  {s:"08:10", e:"08:35", icon:"🚿", t:"Mandi", d:"", approx:true, cat:"personal"},
-  {s:"08:35", e:"08:50", icon:"🕌", t:"Shalat Dhuha", d:"Setelah mandi.", approx:true, cat:"ibadah"},
-  {s:"08:50", e:"09:05", icon:"🎬", t:"Konten: Render & upload video 3 + 2 Shorts", d:"Render & upload video panjang 3 (hasil Flow dari Sabtu), lalu buat 2 Shorts. (±10 menit)", cat:"konten"},
-  {s:"09:05", e:"12:00", icon:"⏳", t:"Waktu bebas", d:"", approx:true, cat:"personal"},
-  {s:"12:00", e:"12:30", icon:"🕌", t:"Shalat Zuhur & makan siang", d:"", cat:"ibadah"},
-  {s:"12:30", e:"15:30", icon:"😴", t:"Tidur siang", d:"", cat:"tidur"},
-  {s:"15:30", e:"15:45", icon:"🕌", t:"Shalat Ashar", d:"", cat:"ibadah"},
-  {s:"15:45", e:"18:00", icon:"🏡", t:"Membantu orang tua", d:"Jika diperlukan.", approx:true, cat:"personal"},
-  {s:"18:00", e:"19:00", icon:"🎒", t:"Persiapan kerja minggu depan", d:"", approx:true, cat:"persiapan"},
-  {s:"19:00", e:"19:20", icon:"📊", t:"Konten: Lihat angka", d:"Video mana yang paling lama ditonton? Ulangi topiknya, catat sebagai bahan naskah Senin. (±15 menit)", cat:"konten"},
-  {s:"19:20", e:"20:30", icon:"📋", t:"Review mingguan", d:"Evaluasi shalat, konten, portfolio, project, bacaan, pemasukan, dan waktu bersama istri.", cat:"review"},
-  {s:"20:30", e:"21:45", icon:"💞", t:"Waktu bersama istri", d:"Ngobrol santai, teh/kopi, tanpa gadget.", cat:"keluarga"},
-  {s:"21:45", e:"22:00", icon:"🌙", t:"Persiapan tidur", d:"Sikat gigi, wudu, doa tidur, simpan HP.", approx:true, cat:"persiapan"},
-  {s:"22:00", e:"04:00", icon:"😴", t:"Tidur", d:"", cat:"tidur"},
-];
+function jadwalSabtu(T, R){
+  return susun([
+    ...awalHari(T,R,true),
+    bacaPagiAkhirPekan(R),
+    S("🚶","Jalan kaki","olahraga",60,{at:360, d:R?"Jalan santai, tidak perlu sampai berkeringat.":"Sampai berkeringat."}),
+    S("🧘","Jeda istirahat","personal",10,{d:"Duduk santai, minum air, biarkan keringat mengering sebelum mandi.", approx:true}),
+    S("🚿","Bersiap","personal",35,{d:"Mandi & persiapan.", approx:true}),
+    S("🕌","Shalat Dhuha","ibadah",15,{d:"Setelah mandi.", approx:true}),
+    S("🎬","Konten: Video panjang 3","konten",20,{d:"Upload suara, kirim ke Flow, biarkan jalan. (±3 menit + menunggu)"}),
+    S("⏳","Waktu bebas","personal",200,{d:"Santai, urusan rumah, atau waktu bersama istri. Video 3 diproses Flow di latar belakang, di-render besok.", approx:true}),
+    zuhurAkhirPekan(T,R),
+    S("😴","Tidur siang","tidur",170),
+    S("🕌","Shalat Ashar","ibadah",15,{at:T.asr}),
+    ...(R ? [S("🧺","Bersih-bersih & laundry","personal",45,{d:"Bersih-bersih kamar, laundry, minimalisme.", approx:true})] : []),
+    S("💞","Waktu bersama istri","keluarga",120,{d:"Jalan sore, belanja kebutuhan rumah, atau sekadar ngobrol santai.", approx:true}),
+    ...malamAkhirPekan(T,R),
+    ...(R ? [] : [S("🧺","Bersih-bersih & laundry","personal",35,{d:"Bersih-bersih kamar, laundry, minimalisme.", approx:true})]),
+    S("💞","Malam santai bersama istri","keluarga",60,{d:"Berdua: ngobrol, membaca, nonton video edukasi, atau camilan bareng.", approx:true}),
+    ...tutupMalam(R),
+  ]);
+}
+
+function jadwalMinggu(T, R){
+  const review = S("📋","Review mingguan","review",R?60:70,{d:"Evaluasi shalat, konten, portfolio, project, bacaan, pemasukan, keuangan & investasi, dan waktu bersama istri."});
+  return susun([
+    ...awalHari(T,R,true),
+    bacaPagiAkhirPekan(R),
+    S("💪","Olahraga ringan","olahraga",R?60:120,{at:360, d:R?"Jalan santai / stretching, intensitas rendah.":''}),
+    S("🧘","Jeda istirahat","personal",10,{d:"Duduk santai, minum air, biarkan keringat mengering sebelum mandi.", approx:true}),
+    S("🚿","Mandi","personal",25,{approx:true}),
+    S("🕌","Shalat Dhuha","ibadah",15,{d:"Setelah mandi.", approx:true}),
+    S("🎬","Konten: Render & upload video 3 + 2 Shorts","konten",15,{d:"Render & upload video panjang 3 (hasil Flow dari Sabtu), lalu buat 2 Shorts. (±10 menit)"}),
+    S("📊","Konten: Lihat angka","konten",20,{d:"Video mana yang paling lama ditonton? Ulangi topiknya, catat sebagai bahan naskah Senin. (±15 menit)"}),
+    ...(R ? [review] : []),
+    S("⏳","Waktu bebas","personal",200,{approx:true}),
+    zuhurAkhirPekan(T,R),
+    S("😴","Tidur siang","tidur",170),
+    S("🕌","Shalat Ashar","ibadah",15,{at:T.asr}),
+    S("🏡","Membantu orang tua","personal",60,{d:"Jika diperlukan.", approx:true}),
+    S("🎒","Persiapan kerja minggu depan","persiapan",45,{approx:true}),
+    S("💞","Waktu bersama istri","keluarga",120,{d:"Ngobrol santai, teh/kopi, tanpa gadget.", approx:true}),
+    ...malamAkhirPekan(T,R),
+    ...(R ? [S("💞","Waktu bersama istri","keluarga",60,{d:"Ngobrol santai, teh/kopi, tanpa gadget."})] : [review]),
+    ...tutupMalam(R),
+  ]);
+}
 
 const TABS = [
   {key:'senin', label:'Senin', day:1},
@@ -366,23 +611,19 @@ const TABS = [
   {key:'sabtu', label:'Sabtu', day:6},
   {key:'minggu', label:'Minggu', day:0},
 ];
-
-function getDayType(jsDay){
-  return TABS.find(t=>t.day===jsDay).key;
-}
-function scheduleFor(key){
+function getDayType(jsDay){ return TABS.find(t=>t.day===jsDay).key; }
+function scheduleFor(key, T, R){
   const tab = TABS.find(t=>t.key===key);
-  if(tab.day>=1 && tab.day<=4) return weekdaySchedule(tab.day);
-  if(key==='jumat') return JUMAT;
-  if(key==='sabtu') return SABTU;
-  return MINGGU;
+  if(tab.day>=1 && tab.day<=4) return jadwalSenKam(tab.day, T, !!R);
+  if(key==='jumat') return jadwalJumat(T, !!R);
+  if(key==='sabtu') return jadwalSabtu(T, !!R);
+  return jadwalMinggu(T, !!R);
 }
+
 function toMin(hhmm){const [h,m]=hhmm.split(':').map(Number); return h*60+m;}
 
 let selectedKey = null;
-const now = new Date();
-const actualDayType = getDayType(now.getDay());
-selectedKey = actualDayType;
+let userPicked = false;
 
 function fmtTime(d){
   return d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -405,13 +646,64 @@ function classify(block, nowMin, wraps){
   return {isNow,isPast,isFuture};
 }
 
+function renderSholat(T, nowMin, RS){
+  const R = RS.aktif;
+  const daftar = [['Subuh',T.fajr],['Zuhur',T.dhuhr],['Ashar',T.asr],['Maghrib',T.maghrib],['Isya',T.isha]];
+  let label, sisa;
+  if(R && nowMin<T.imsak){ label='Imsak'; sisa=T.imsak-nowMin; }
+  else if(R && nowMin>=T.imsak && nowMin<T.maghrib){ label='Berbuka'; sisa=T.maghrib-nowMin; }
+  else {
+    let i = daftar.findIndex(x=>x[1]>nowMin);
+    if(i===-1){ label=daftar[0][0]; sisa=T.fajr+1440-nowMin; } else { label=daftar[i][0]; sisa=daftar[i][1]-nowMin; }
+  }
+  const nextIdx = daftar.findIndex(x=>x[1]>nowMin);
+  const jam = Math.floor(sisa/60), mnt = sisa%60;
+  document.getElementById('sholatNext').textContent = label + ' dalam ' + (jam? jam+' j ' : '') + mnt + ' m';
+  document.getElementById('sholatLokasi').textContent = namaLokasi();
+  document.getElementById('ramadanBadge').textContent = R ? ('🌙 Ramadan' + (RS.hari ? ' hari ke-'+RS.hari : '')) : '';
+  document.getElementById('sholatGrid').innerHTML = daftar.map((x,i)=>
+    '<div class="pcell' + (i===(nextIdx===-1?0:nextIdx)?' next':'') + (x[1]<=nowMin?' done':'') + '"><div class="pn">'+x[0]+'</div><div class="pt">'+fmtHM(x[1])+'</div></div>').join('');
+  document.getElementById('sholatExtra').textContent = (R ? 'Imsak ' + fmtHM(T.imsak) + ' · ' : '') + 'Terbit ' + fmtHM(T.sunrise) + ' · Dhuha ' + fmtHM(T.dhuha);
+  const k = getKoreksi();
+  document.getElementById('kVal').textContent = (k>0?'+':'') + k;
+}
+
+function renderPengaturan(RS){
+  document.getElementById('lokasiNama').textContent = namaLokasi();
+  document.getElementById('ramadanMode').value = RS.mode;
+  document.getElementById('hVal').textContent = (RS.off>0?'+':'') + RS.off;
+  const h = RS.hari!==null || RS.hijri ? RS.hijri : null;
+  document.getElementById('hijriInfo').textContent = h
+    ? 'Perkiraan hari ini: ' + h.d + ' ' + BULAN_HIJRI[h.m-1] + ' ' + h.y + ' H. Awal Ramadan di Indonesia bisa berbeda 1 hari dari kalender ini; geser dengan − / + bila perlu.'
+    : 'Kalender Hijriah tidak tersedia di browser ini; gunakan mode Aktif/Nonaktif secara manual.';
+}
+
+function pasangListener(){
+  const pesan = t => { document.getElementById('lokasiMsg').textContent = t; };
+  document.getElementById('kMin').onclick = ()=>{ setKoreksi(getKoreksi()-1); render(); };
+  document.getElementById('kPlus').onclick = ()=>{ setKoreksi(getKoreksi()+1); render(); };
+  document.getElementById('btnLokasi').onclick = ()=>{ pesan('Mencari lokasi…'); perbaruiLokasi(m=>{ pesan(m); render(); }); };
+  document.getElementById('btnLokasiDefault').onclick = ()=>{ pakaiLokasiDefault(); pesan('Kembali ke Kotawaringin Timur.'); render(); };
+  document.getElementById('ramadanMode').onchange = e=>{ simpan('ramadanMode', e.target.value); render(); };
+  const geser = d => { const v=Math.max(-2,Math.min(2,(parseInt(baca('hijriOffset',0),10)||0)+d)); simpan('hijriOffset', v); render(); };
+  document.getElementById('hMin').onclick = ()=>geser(-1);
+  document.getElementById('hPlus').onclick = ()=>geser(1);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && LOKASI.auto) perbaruiLokasi(()=>render()); });
+}
+
 function render(){
   const n = new Date();
   document.getElementById('timeLabel').textContent = fmtTime(n);
   document.getElementById('dateLabel').textContent = fmtDate(n);
   const nowMin = n.getHours()*60 + n.getMinutes();
   const jsDay = n.getDay();
+  const actualDayType = getDayType(jsDay);
+  if(!userPicked) selectedKey = actualDayType;
   const isToday = selectedKey === actualDayType;
+  const T = waktuHariIni(n);
+  const RS = statusRamadan(n);
+  renderSholat(T, nowMin, RS);
+  renderPengaturan(RS);
 
   // tabs
   const tabsEl = document.getElementById('tabs');
@@ -420,11 +712,11 @@ function render(){
     const btn = document.createElement('button');
     btn.className = 'tab' + (tab.key===selectedKey ? ' active' : '');
     btn.innerHTML = tab.label + (tab.key===actualDayType ? '<span class="today-mark">• hari ini</span>' : '');
-    btn.onclick = ()=>{selectedKey = tab.key; render();};
+    btn.onclick = ()=>{selectedKey = tab.key; userPicked = true; render();};
     tabsEl.appendChild(btn);
   });
 
-  const sched = scheduleFor(selectedKey, jsDay, n).map(b=>{
+  const sched = scheduleFor(selectedKey, T, RS.aktif).map(b=>{
     const sMin = toMin(b.s), eMinRaw = toMin(b.e);
     const wraps = eMinRaw <= sMin;
     return {...b, sMin, eMin: eMinRaw, wraps};
@@ -505,8 +797,12 @@ function render(){
   });
 }
 
+//__INIT__
+muatLokasi();
+pasangListener();
 render();
 setInterval(render, 15000);
+if(LOKASI.auto) perbaruiLokasi(()=>render());   // segarkan lokasi otomatis saat aplikasi dibuka
 
 // Daftarkan service worker agar bisa diinstal & dibuka offline
 if('serviceWorker' in navigator){
